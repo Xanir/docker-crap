@@ -1,0 +1,25 @@
+ # Update existing packages.
+sudo dnf update -y
+ # Add Docker YUM Repo
+sudo tee /etc/yum.repos.d/docker.repo <<-'EOF'
+[dockerrepo]
+name=Docker Repository
+baseurl=https://yum.dockerproject.org/repo/main/fedora/$releasever/
+enabled=1
+gpgcheck=1
+gpgkey=https://yum.dockerproject.org/gpg
+EOF
+ # Install Docker
+sudo dnf install docker-engine -y
+ #  Configure Docker Boot Params - Force the Use of OverlayFS
+sudo tee /etc/systemd/system/docker.service <<-'EOF'
+[Service]
+ExecStart=
+ExecStart=/usr/bin/docker daemon --storage-driver=overlay
+EOF
+ # Reload systemd Settings
+sudo systemctl daemon-reload
+ # Start Docker Service
+sudo systemctl start docker
+# Auto-Start Docker at Boot (not needed ?)
+sudo systemctl enable docker
